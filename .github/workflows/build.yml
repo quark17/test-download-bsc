@@ -1,0 +1,57 @@
+name: CI
+
+# Trigger the workflow on push or pull request
+on: [ push, pull_request ]
+
+jobs:
+  test-latest:
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04 ]
+      fail-fast: false
+    name: "Test latest ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download BSC
+        id: download
+        uses: quark17/download-bsc@HEAD
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          os: ${{ matrix.os }}
+          version: latest
+          path: ../bsc
+
+      - name: Build
+        run: |
+          echo Version tag: ${{steps.download.outputs.tag}}
+          echo Version hash: ${{steps.download.outputs.commit}}
+          export PATH=$PWD/../bsc/inst/bin:$PATH
+          bsc -v
+
+  test-release:
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04 ]
+      fail-fast: false
+    name: "Test release ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download BSC
+        id: download
+        uses: quark17/download-bsc@HEAD
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          os: ${{ matrix.os }}
+          version: 2023.07
+          path: ../bsc
+
+      - name: Build
+        run: |
+          echo Version tag: ${{steps.download.outputs.tag}}
+          echo Version hahs: ${{steps.download.outputs.commit}}
+          export PATH=$PWD/../bsc/inst/bin:$PATH
+          bsc -v
