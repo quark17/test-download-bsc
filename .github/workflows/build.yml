@@ -21,13 +21,13 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           os: ${{ matrix.os }}
           version: latest
-          path: ../bsc
+          path: ../
 
       - name: Build
         run: |
           echo Version tag: ${{steps.download.outputs.tag}}
           echo Version hash: ${{steps.download.outputs.commit}}
-          export PATH=$PWD/../bsc/inst/bin:$PATH
+          export PATH=$PWD/../bsc/bin:$PATH
           bsc -v
 
   test-release:
@@ -47,11 +47,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           os: ${{ matrix.os }}
           version: 2023.07
-          path: ../bsc
+          path: ../
 
       - name: Build
         run: |
           echo Version tag: ${{steps.download.outputs.tag}}
           echo Version hahs: ${{steps.download.outputs.commit}}
-          export PATH=$PWD/../bsc/inst/bin:$PATH
+          export PATH=$PWD/../bsc/bin:$PATH
           bsc -v
