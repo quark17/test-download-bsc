@@ -16,7 +16,7 @@ jobs:
 
       - name: Download BSC
         id: download
-        uses: quark17/download-bsc@HEAD
+        uses: B-Lang-org/download-bsc@v1
         with:
           os: ${{ matrix.os }}
           version: latest
@@ -41,7 +41,7 @@ jobs:
 
       - name: Download BSC
         id: download
-        uses: quark17/download-bsc@HEAD
+        uses: B-Lang-org/download-bsc@v1
         with:
           os: ${{ matrix.os }}
           version: 2023.07
