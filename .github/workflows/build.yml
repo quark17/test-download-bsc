@@ -4,7 +4,15 @@ name: CI
 on: [ push, pull_request ]
 
 jobs:
+  prepare-sha:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "null"
+    outputs:
+      sha: ${{ github.sha }}
+
   test-latest:
+    needs: prepare-sha
     strategy:
       matrix:
         os: [ ubuntu-20.04 ]
@@ -16,7 +24,7 @@ jobs:
 
       - name: Download BSC
         id: download
-        uses: B-Lang-org/download-bsc@v1
+        uses: B-Lang-org/download-bsc@${{ needs.prepare-sha.sha }}
         with:
           os: ${{ matrix.os }}
           version: latest
