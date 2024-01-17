@@ -4,6 +4,57 @@ name: CI
 on: [ push, pull_request ]
 
 jobs:
+  test-cxx:
+    strategy:
+      matrix:
+        os: [ macos-11, macos-12, macos-13 ]
+      fail-fast: false
+    name: "Test C++ ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download BSC
+        id: download
+        uses: B-Lang-org/download-bsc@v1
+        with:
+          os: ${{ matrix.os }}
+          version: latest
+          path: ../
+
+      - name: Cxx
+        run: |
+          c++ -dM -E -x c++ /dev/null | grep -F __cplusplus
+          brew install systemc
+          echo $(brew --prefix systemc)
+          ls -l $(brew --prefix systemc)/lib
+          nm --demangle $(brew --prefix systemc)/lib/libsystemc.2.3.4.dylib | grep sc_api_version_
+
+      - name: dependencies
+        run: |
+          brew install deja-gnu icarus-verilog
+ 
+      # Checkout the testsuite at the same version
+      - name: Download testsuite
+        run: |
+          git clone -n https://github.com/B-Lang-org/bsc ../bsc-testsuite
+          cd ../bsc-testsuite
+          git checkout ${{ steps.download.outputs.commit }}
+
+      - name: Run testsuite
+        run: |
+          export CXXFLAGS="-O0"
+          export TEST_RELEASE=$PWD/../bsc
+
+          SYSTEMC_CXXSTD=`nm --demangle $(brew --prefix systemc)/lib/libsystemc.2.3.4.dylib | grep sc_api_version_ | sed -E 's/.*_cxx20([0-9][0-9]).*/\1/' | head -1`
+          export TEST_SYSTEMC_CXXFLAGS=-std=c++${SYSTEMC_CXXSTD}
+
+          cd ../bsc-testsuite/testsuite/bsc.bluesim/to_systemc/gcd
+          make \
+               TEST_SYSTEMC_INC=$(brew --prefix systemc)/include \
+               TEST_SYSTEMC_LIB=$(brew --prefix systemc)/lib \
+               localcheck
+
   test-latest:
     strategy:
       matrix:
