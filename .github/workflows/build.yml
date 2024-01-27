@@ -4,6 +4,27 @@ name: CI
 on: [ push, pull_request ]
 
 jobs:
+  test-asciidoctor-pdf:
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04 ]
+      fail-fast: false
+    name: "Test Asciidoctor PDF ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Asciidoctor PDF
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y asciidoctor ruby-asciidoctor-pdf
+          asciidoctor-pdf -V
+          sudo gem install asciidoctor-pdf
+          hash -r
+          sudo gem which asciidoctor-pdf
+          asciidoctor-pdf -V
+          command -v asciidoctor-pdf
+
   test-cxx:
     strategy:
       matrix:
